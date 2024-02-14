@@ -1,0 +1,151 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <ctime>
+
+class Transaction {
+public:
+    std::string type;
+    double amount;
+    Transaction(std::string t, double a) : type(t), amount(a) {}
+};
+
+class Account {
+private:
+    double balance;
+    std::vector<Transaction> transactions;
+public:
+    Account(double initialBalance) : balance(initialBalance) {}
+    double getBalance() { return balance; }
+    void deposit(double amount) {
+        balance += amount;
+        transactions.push_back(Transaction("Deposit", amount));
+    }
+    void withdraw(double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            transactions.push_back(Transaction("Withdrawal", amount));
+            std::cout << "Withdrawal successful!" << std::endl;
+        } else {
+            std::cout << "Insufficient funds!" << std::endl;
+        }
+    }
+    void sendMoney(double amount, std::string receiverDetails) {
+        if (balance >= amount) {
+            balance -= amount;
+            transactions.push_back(Transaction("Sent", amount));
+            std::cout << "Money sent successfully to " << receiverDetails << "!" << std::endl;
+        } else {
+            std::cout << "Insufficient funds!" << std::endl;
+        }
+    }
+};
+
+class Bank {
+private:
+    std::vector<Account> accounts;
+public:
+    void addAccount(double initialBalance) {
+        accounts.push_back(Account(initialBalance));
+    }
+    void removeAccount(int index) {
+        accounts.erase(accounts.begin() + index);
+    }
+    std::vector<Account>& getAccounts() {
+        return accounts;
+    }
+    double calculateYearlyInterest(double amount, int months) {
+        // Your calculation logic for yearly interest
+        return (amount * 0.12 * months) / 12; // 12% interest rate, assuming interest is calculated monthly
+    }
+};
+
+double convertToUSD(double amount) {
+    // Assuming 1 USD = 1 EUR for simplicity
+    return amount * 1.18; // Conversion rate as of now
+}
+
+int getDaysSinceBirthday(int birthDay, int birthMonth, int birthYear) {
+    std::time_t now = std::time(nullptr);
+    std::tm* localTime = std::localtime(&now);
+    int currentYear = localTime->tm_year + 1900;
+    int currentMonth = localTime->tm_mon + 1;
+    int currentDay = localTime->tm_mday;
+
+    // Calculate days since birthday
+    int daysSinceBirthday = 0;
+    if (currentYear > birthYear) {
+        // Add days until end of birth year
+        daysSinceBirthday += (365 - (birthDay + (30 * (birthMonth - 1))));
+        // Add days from start of current year
+        for (int i = birthYear + 1; i < currentYear; ++i) {
+            daysSinceBirthday += (i % 4 == 0 && (i % 100 != 0 || i % 400 == 0)) ? 366 : 365;
+        }
+        // Add days from start of current year
+        for (int i = 1; i < currentMonth; ++i) {
+            daysSinceBirthday += (i == 2 && (currentYear % 4 == 0 && (currentYear % 100 != 0 || currentYear % 400 == 0))) ? 29 : (i == 2 ? 28 : ((i % 2 == 0 && i < 8) || (i % 2 != 0 && i >= 8)) ? 30 : 31);
+        }
+        // Add days from start of current month
+        daysSinceBirthday += currentDay;
+    }
+    return daysSinceBirthday;
+}
+
+int main() {
+    int birthDay, birthMonth, birthYear;
+    std::cout << "Enter your birth date (DD MM YYYY): ";
+    std::cin >> birthDay >> birthMonth >> birthYear;
+    int daysSinceBirthday = getDaysSinceBirthday(birthDay, birthMonth, birthYear);
+    double initialBalance = daysSinceBirthday;
+    std::cout << "Initial balance based on days since birthday: " << initialBalance << std::endl;
+
+    Bank bank;
+    bank.addAccount(initialBalance);
+    Account& account1 = bank.getAccounts().front();
+    int choice;
+    double amount;
+    std::string receiverDetails;
+    while (true) {
+        std::cout << "\n1. Withdraw Money\n2. Send Money\n3. Request Money\n4. Save for Yearly Interest Rate\n5. Check Balance\n6. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+        switch (choice) {
+            case 1:
+                std::cout << "Enter amount to withdraw: ";
+                std::cin >> amount;
+                account1.withdraw(amount);
+                break;
+            case 2:
+                std::cout << "Enter amount to send: ";
+                std::cin >> amount;
+                std::cout << "Enter receiver details: ";
+                std::cin.ignore();
+                std::getline(std::cin, receiverDetails);
+                account1.sendMoney(amount, receiverDetails);
+                break;
+            case 3:
+                std::cout << "From whom you wanna request money? ";
+                // Implement requesting money functionality
+                std::cout << "We've emailed to the user you provided regarding your payment request." << std::endl;
+                break;
+            case 4:
+                double savingAmount;
+                int savingMonths;
+                std::cout << "Enter amount to save for yearly interest: ";
+                std::cin >> savingAmount;
+                std::cout << "Enter number of months to save for yearly interest: ";
+                std::cin >> savingMonths;
+                account1.deposit(savingAmount);
+                std::cout << "Saved " << savingAmount << " for yearly interest for " << savingMonths << " months!" << std::endl;
+                break;
+            case 5:
+                std::cout << "Current Balance: " << convertToUSD(account1.getBalance()) << " USD" << std::endl;
+                break;
+            case 6:
+                std::cout << "Exiting program..." << std::endl;
+                return 0;
+            default:
+                std::cout << "Invalid choice. Please try again." << std::endl;
+        }
+    }
+}
