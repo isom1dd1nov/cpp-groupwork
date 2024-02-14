@@ -123,9 +123,9 @@ int main() {
                 account1.sendMoney(amount, receiverDetails);
                 break;
             case 3:
-                std::cout << "From whom you wanna request money? ";
-                // Implement requesting money functionality
-                std::cout << "We've emailed to the user you provided regarding your payment request." << std::endl;
+                std::cout << "From which user do you want to request money? ";
+
+                std::cout << "We'll email to the user you provid regarding your payment request." << std::endl;
                 break;
             case 4:
                 double savingAmount;
