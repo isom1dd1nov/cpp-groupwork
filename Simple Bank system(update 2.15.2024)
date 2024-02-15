@@ -55,15 +55,9 @@ public:
         return accounts;
     }
     double calculateYearlyInterest(double amount, int months) {
-
-        return (amount * 0.12 * months) / 12; 
+        return (amount * 0.09); // Fixed yearly interest rate of 9%
     }
 };
-
-double convertToUSD(double amount) {
-
-    return amount * 1.18; 
-}
 
 int getDaysSinceBirthday(int birthDay, int birthMonth, int birthYear) {
     std::time_t now = std::time(nullptr);
@@ -74,7 +68,6 @@ int getDaysSinceBirthday(int birthDay, int birthMonth, int birthYear) {
 
     int daysSinceBirthday = 0;
     if (currentYear > birthYear) {
-
         daysSinceBirthday += (365 - (birthDay + (30 * (birthMonth - 1))));
 
         for (int i = birthYear + 1; i < currentYear; ++i) {
@@ -96,7 +89,7 @@ int main() {
     std::cin >> birthDay >> birthMonth >> birthYear;
     int daysSinceBirthday = getDaysSinceBirthday(birthDay, birthMonth, birthYear);
     double initialBalance = daysSinceBirthday;
-    std::cout << "Initial balance based on days since birthday: " << initialBalance << std::endl;
+    std::cout << "Initial balance based on days since birthday: " << initialBalance << " USD" << std::endl;
 
     Bank bank;
     bank.addAccount(initialBalance);
@@ -104,8 +97,10 @@ int main() {
     int choice;
     double amount;
     std::string receiverDetails;
+    
     while (true) {
-        std::cout << "\n1. Withdraw Money\n2. Send Money\n3. Request Money\n4. Save for Yearly Interest Rate\n5. Check Balance\n6. Exit\n";
+        std::cout << "Current Balance: " << account1.getBalance() << " USD" << std::endl;
+        std::cout << "\n1. Withdraw Money\n2. Send Money\n3. Request Money\n4. Save for Yearly Interest Rate\n5. Exit\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
         switch (choice) {
@@ -124,23 +119,39 @@ int main() {
                 break;
             case 3:
                 std::cout << "From which user do you want to request money? ";
-
-                std::cout << "We'll email to the user you provid regarding your payment request." << std::endl;
+                std::cout << "We'll email to the user you provide regarding your payment request." << std::endl;
                 break;
             case 4:
                 double savingAmount;
-                int savingMonths;
                 std::cout << "Enter amount to save for yearly interest: ";
                 std::cin >> savingAmount;
-                std::cout << "Enter number of months to save for yearly interest: ";
-                std::cin >> savingMonths;
-                account1.deposit(savingAmount);
-                std::cout << "Saved " << savingAmount << " for yearly interest for " << savingMonths << " months!" << std::endl;
+                std::cout << "The amount you entered for yearly interest rate: " << savingAmount << std::endl;
+                std::cout << "The yearly interest rate is fixed and it is 9% for now." << std::endl;
+                std::cout << "Do you want to proceed? (1) Yes (2) No, change the amount (3) Cancel the process: ";
+                int proceedChoice;
+                std::cin >> proceedChoice;
+                switch (proceedChoice) {
+                    case 1:
+                        if (account1.getBalance() >= savingAmount) {
+                            account1.withdraw(savingAmount);
+                            std::cout << "Saved " << savingAmount << " for yearly interest!" << std::endl;
+                        } else {
+                            std::cout << "Insufficient funds to save for yearly interest!" << std::endl;
+                        }
+                        break;
+                    case 2:
+                        std::cout << "Enter the new amount to save for yearly interest: ";
+                        std::cin >> savingAmount;
+                        break;
+                    case 3:
+                        std::cout << "Cancelled the process." << std::endl;
+                        break;
+                    default:
+                        std::cout << "Invalid choice. Please try again." << std::endl;
+                        break;
+                }
                 break;
             case 5:
-                std::cout << "Current Balance: " << convertToUSD(account1.getBalance()) << " USD" << std::endl;
-                break;
-            case 6:
                 std::cout << "Exiting program..." << std::endl;
                 return 0;
             default:
